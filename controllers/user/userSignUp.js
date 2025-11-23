@@ -5,20 +5,19 @@ async function userSignUpController(req, res) {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
     const existingUser = await userModel.findOne({ email });
     console.log(existingUser);
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create new user
     const newUser = new userModel({
       name,
       email,
+      role : "GENERAL",
       password: hashedPassword,
       isVerified: false,
     });
