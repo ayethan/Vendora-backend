@@ -17,7 +17,7 @@ async function userSignUpController(req, res) {
     const newUser = new userModel({
       name,
       email,
-      role : "GENERAL",
+      role : "General",
       password: hashedPassword,
       isVerified: false,
     });
