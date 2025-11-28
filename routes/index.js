@@ -26,11 +26,11 @@ router.get("/signout",userSignoutController)
 router.get("/get-all-users",getAllUsersController)
 router.put("/update-user/:id",updateUserController)
 
-router.get("/products",productRouts.getAllProducts)
-router.post("/products-create",productRouts.createProduct)
-router.get("/products/:id",productRouts.getProductById)
-router.put("/products-update/:id",productRouts.updateProduct)
-router.delete("/products-delete/:id",productRouts.deleteProduct)
+router.get("/products",authToken,productRouts.getAllProducts)
+router.post("/products-create",authToken, productRouts.createProduct)
+router.get("/products/:id",authToken, productRouts.getProductById)
+router.put("/products-update/:id",authToken, productRouts.updateProduct)
+router.delete("/products-delete/:id",authToken, productRouts.deleteProduct)
 
 
 
