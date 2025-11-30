@@ -13,14 +13,26 @@ const userSignoutController = require('../controllers/user/userSignout');
 const getAllUsersController = require('../controllers/user/getAllUsers');
 const updateUserController = require('../controllers/user/updateUser');
 
+
 //products
 const productRouts = require('../controllers/product/ProductController');
+
+//frontend pages
+const frontendProduct = require('../controllers/frontendPages/ProductController');
 
 
 // Routes"
 
+// public routes
+router.get("/product-list",frontendProduct.productList)
+router.get("/product/:id", frontendProduct.getProductById)
+router.get("/featured-products",frontendProduct.featuredProducts)
+
 router.post("/signup",userSignUpController)
 router.post("/signin",userSignInController)
+
+
+// admin routes
 router.get("/user-details",authToken,userDetailsController)
 router.get("/signout",userSignoutController)
 router.get("/get-all-users",getAllUsersController)
