@@ -83,8 +83,24 @@ async function getProductById(req, res) {
   }
 }
 
+async function getRelatedProducts(req, res) {
+  console.log('Fetching related products with params:', req.params);
+  try {
+    const { category, productId } = req.params;
+    const products = await productModel.find({
+      category: parseInt(category, 10),
+      _id: { $ne: productId }
+    }).limit(4).exec();
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching related products', success: false, error: true });
+  }
+}
+
 module.exports = {
   productList,
   featuredProducts,
   getProductById,
+  getRelatedProducts,
 };

@@ -11,6 +11,10 @@ const userSchema = new mongodb.Schema({
   profilePic : String,
   role : String,
   isVerified : Boolean,
+  address: String,
+  city: String,
+  country: String,
+  phone: String,
 }, { timestamps: true });
 
 const User = mongodb.model('User', userSchema);

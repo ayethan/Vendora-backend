@@ -3,7 +3,7 @@ const userModel = require('../../models/userModel');
 async function updateUserController(req, res) {
   try {
     const userId = req.params.id;
-    const { name, email, role } = req.body;
+    const { name, email, role, address, city, country, phone } = req.body;
 
     const user = await userModel.findById(userId);
 
@@ -15,6 +15,10 @@ async function updateUserController(req, res) {
     user.name = name || user.name;
     user.email = email || user.email;
     user.role = role || user.role;
+    user.address = address || user.address;
+    user.city = city || user.city;
+    user.country = country || user.country;
+    user.phone = phone || user.phone;
 
     await user.save();
 
