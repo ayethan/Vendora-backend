@@ -1,7 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const Order = require('../models/orderModel');
-const User = require('../models/userModel');
-const Cart = require('../models/cartModel');
+const Order = require('../../models/orderModel');
+const User = require('../../models/userModel');
+const Cart = require('../../models/cartModel');
 
 const createCheckoutSession = async (req, res) => {
   const { amount, currency, paymentMethodId, userId, items } = req.body;
