@@ -2,6 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Order = require('../../models/orderModel');
 const User = require('../../models/userModel');
 const Cart = require('../../models/cartModel');
+const sendMail = require('../../helpers/mailHelper');
 
 const createCheckoutSession = async (req, res) => {
   const { amount, currency, paymentMethodId, userId, items } = req.body;
@@ -32,6 +33,13 @@ const createCheckoutSession = async (req, res) => {
 
       // Clear the user's cart after successful order
       await Cart.findOneAndDelete({ userId: userId });
+
+      // Send order confirmation email
+      const user = await User.findById(userId);
+      if (user && user.email) {
+        const emailHtml = `<h1>Thank you for your order!</h1><p>Your order with ID ${order._id} has been placed successfully.</p>`;
+        await sendMail(user.email, 'Order Confirmation', emailHtml);
+      }
 
       res.status(200).json({
         success: true,
