@@ -98,9 +98,26 @@ async function getRelatedProducts(req, res) {
   }
 }
 
+async function searchProduct(req, res) {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(200).json([]);
+    }
+    const products = await productModel.find({
+      name: { $regex: q, $options: 'i' }
+    }).limit(10);
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error searching products', success: false, error: true });
+  }
+}
+
 module.exports = {
   productList,
   featuredProducts,
   getProductById,
   getRelatedProducts,
+  searchProduct,
 };

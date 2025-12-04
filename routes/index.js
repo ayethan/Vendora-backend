@@ -19,6 +19,7 @@ router.get("/product-list",frontendProduct.productList)
 router.get("/product/:id", frontendProduct.getProductById)
 router.get("/featured-products",frontendProduct.featuredProducts)
 router.get("/product/related/:category/:productId", frontendProduct.getRelatedProducts)
+router.get("/search", frontendProduct.searchProduct)
 
 //cart
 router.post("/cart/add", authToken, cartController.addToCart)
