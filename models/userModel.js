@@ -7,6 +7,7 @@ const userSchema = new mongodb.Schema({
     unique: true,
     required: true
   },
+  phone: String,
   password : String,
   profilePic : String,
   role : String,
@@ -14,7 +15,6 @@ const userSchema = new mongodb.Schema({
   address: String,
   city: String,
   country: String,
-  phone: String,
 }, { timestamps: true });
 
 const User = mongodb.model('User', userSchema);

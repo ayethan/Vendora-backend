@@ -3,6 +3,7 @@ const router = express.Router()
 
 // middlewares
 const authToken = require("../middleware/authToken");
+const adminPermissionMiddleware = require('../middleware/adminPermissionMiddleware');
 
 // admin controllers
 const authController = require("../controllers/admin/authController");
@@ -36,14 +37,14 @@ router.post("/signin",authController.userSignIn)
 router.get("/signout",authController.userSignout)
 
 // admin routes
-router.get("/get-all-users",userController.getUserAll)
-router.get("/user-details",authToken,userController.userDetails)
-router.put("/update-user/:id",userController.updateUser)
+router.get("/get-all-users", authToken, adminPermissionMiddleware, userController.getUserAll);
+router.get("/user-details", authToken, userController.userDetails);
+router.put("/update-user/:id", authToken, adminPermissionMiddleware, userController.updateUser);
 
-router.get("/products",authToken,productRouts.getAllProducts)
-router.post("/products-create",authToken, productRouts.createProduct)
-router.get("/products/:id",authToken, productRouts.getProductById)
-router.put("/products-update/:id",authToken, productRouts.updateProduct)
-router.delete("/products-delete/:id",authToken, productRouts.deleteProduct)
+router.get("/products", authToken, adminPermissionMiddleware, productRouts.getAllProducts);
+router.post("/products-create", authToken, adminPermissionMiddleware, productRouts.createProduct);
+router.get("/products/:id", authToken, adminPermissionMiddleware, productRouts.getProductById);
+router.put("/products-update/:id", authToken, adminPermissionMiddleware, productRouts.updateProduct);
+router.delete("/products-delete/:id", authToken, adminPermissionMiddleware, productRouts.deleteProduct);
 
 module.exports = router

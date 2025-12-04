@@ -24,7 +24,7 @@ async function userDetails(req, res) {
     console.log("User Details Controller - Authenticated User:", req.user.userId);
     const userId = req.user.userId;
     const user = await userModel.findById(userId);
-    // console.log("Fetched User Details:", user);
+    console.log("Fetched User Details:", user);
     res.status(200).json({
       message: 'User details fetched successfully',
       data: user,
