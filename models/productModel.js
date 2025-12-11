@@ -1,13 +1,14 @@
-const mongodb = require('mongoose');
+const mongoose = require('mongoose');
 
-const productSchema = new mongodb.Schema({
+const productSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
-  brand: {
-    type: String,
-    required: false,
+  restaurant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'restaurant',
+    required: true
   },
   featured_image: {
     type: String,
@@ -26,7 +27,8 @@ const productSchema = new mongodb.Schema({
     required: false,
   },
   category: {
-    type: Number,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'categories',
     required: true,
   },
   image: [],
@@ -40,6 +42,6 @@ const productSchema = new mongodb.Schema({
   },
 }, { timestamps: true });
 
-const Product = mongodb.model('Product', productSchema);
+const productModel = mongoose.model('products', productSchema);
 
-module.exports = Product;
+module.exports = productModel;

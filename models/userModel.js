@@ -1,6 +1,6 @@
-const mongodb = require('mongoose');
+const mongoose = require('mongoose');
 
-const userSchema = new mongodb.Schema({
+const userSchema = new mongoose.Schema({
   name : String,
   email : {
     type: String,
@@ -10,13 +10,18 @@ const userSchema = new mongodb.Schema({
   phone: String,
   password : String,
   profilePic : String,
-  role : String,
+  role : {
+    type : String,
+    enum : ["General", "Admin", "Restaurant Owner", "Delivery Rider"],
+    default : "General",
+    required : true
+  },
   isVerified : Boolean,
   address: String,
   city: String,
   country: String,
 }, { timestamps: true });
 
-const User = mongodb.model('User', userSchema);
+const userModel = mongoose.model('users', userSchema);
 
-module.exports = User;
+module.exports = userModel;

@@ -3,7 +3,7 @@ const mongodb = require('mongoose');
 
 async function getAllProducts(req, res) {
   try {
-    const products = await productModel.find();
+    const products = await productModel.find().populate('category');
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching products', success: false, error: true });
@@ -54,7 +54,8 @@ async function updateProduct(req, res) {
       success: true,
       error: false
     });
-  } catch (error) {
+  }
+   catch (error) {
     res.status(500).json({ message: 'Internal server error', success: false, error: true });
   }
 }
