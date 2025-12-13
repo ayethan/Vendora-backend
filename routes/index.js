@@ -14,7 +14,6 @@ const shopCategoryController = require('../controllers/admin/shopCategoryControl
 const pageController = require('../controllers/admin/PageController');
 
 
-
 //frontend controllers
 const frontendProduct = require('../controllers/frontendPages/ProductController');
 const checkoutController = require('../controllers/frontendPages/checkoutController');
@@ -41,38 +40,49 @@ router.post("/signup",authController.userSignUp)
 router.post("/signin",authController.userSignIn)
 router.get("/signout",authController.userSignout)
 
-// admin routes
-router.get("/get-all-users", authToken, adminPermissionMiddleware, userController.getUserAll);
+// This route only requires authentication, not admin permission, so it stays separate.
 router.get("/user-details", authToken, userController.userDetails);
-router.put("/update-user/:id", authToken, adminPermissionMiddleware, userController.updateUser);
+
+// --- Admin Routes ---
+// Create a new router for admin-only routes
+const adminRouter = express.Router();
+
+// Apply authentication and admin permission middleware to all routes in adminRouter
+adminRouter.use(authToken, adminPermissionMiddleware);
+
+// user management
+adminRouter.get("/get-all-users", userController.getUserAll);
+adminRouter.put("/update-user/:id", userController.updateUser);
 
 //category
-router.get("/categories", authToken, adminPermissionMiddleware, categoryController.getAllCategory);
-router.post("/categories", authToken, adminPermissionMiddleware, categoryController.createCategory);
-router.get("/categories/:id", authToken, adminPermissionMiddleware, categoryController.getCategoryById);
-router.put("/categories/:id", authToken, adminPermissionMiddleware, categoryController.updateCategory);
-router.delete("/categories/:id", authToken, adminPermissionMiddleware, categoryController.deleteCategory);
+adminRouter.get("/categories", categoryController.getAllCategory);
+adminRouter.post("/categories", categoryController.createCategory);
+adminRouter.get("/categories/:id", categoryController.getCategoryById);
+adminRouter.put("/categories/:id", categoryController.updateCategory);
+adminRouter.delete("/categories/:id", categoryController.deleteCategory);
 
 //products
-router.get("/products", authToken, adminPermissionMiddleware, productRouts.getAllProducts);
-router.post("/products", authToken, adminPermissionMiddleware, productRouts.createProduct);
-router.get("/products/:id", authToken, adminPermissionMiddleware, productRouts.getProductById);
-router.put("/products/:id", authToken, adminPermissionMiddleware, productRouts.updateProduct);
-router.delete("/products/:id", authToken, adminPermissionMiddleware, productRouts.deleteProduct);
+adminRouter.get("/products", productRouts.getAllProducts);
+adminRouter.post("/products", productRouts.createProduct);
+adminRouter.get("/products/:id", productRouts.getProductById);
+adminRouter.put("/products/:id", productRouts.updateProduct);
+adminRouter.delete("/products/:id", productRouts.deleteProduct);
 
 //shop category
-router.get("/shop-categories", authToken, adminPermissionMiddleware, shopCategoryController.getAllShopCategories);
-router.post("/shop-categories", authToken, adminPermissionMiddleware, shopCategoryController.createShopCategory);
-router.get("/shop-categories/:id", authToken, adminPermissionMiddleware, shopCategoryController.getShopCategoryById);
-router.put("/shop-categories/:id", authToken, adminPermissionMiddleware, shopCategoryController.updateShopCategory);
-router.delete("/shop-categories/:id", authToken, adminPermissionMiddleware, shopCategoryController.deleteShopCategory);
+adminRouter.get("/shop-categories", shopCategoryController.getAllShopCategories);
+adminRouter.post("/shop-categories", shopCategoryController.createShopCategory);
+adminRouter.get("/shop-categories/:id", shopCategoryController.getShopCategoryById);
+adminRouter.put("/shop-categories/:id", shopCategoryController.updateShopCategory);
+adminRouter.delete("/shop-categories/:id", shopCategoryController.deleteShopCategory);
 
 //pages
-router.get("/pages", authToken, adminPermissionMiddleware, pageController.getAllPages);
-router.post("/pages", authToken, adminPermissionMiddleware, pageController.createPage);
-router.get("/pages/:id", authToken, adminPermissionMiddleware, pageController.getPageById);
-router.put("/pages/:id", authToken, adminPermissionMiddleware, pageController.updatePage);
-router.delete("/pages/:id", authToken, adminPermissionMiddleware, pageController.deletePage);
+adminRouter.get("/pages", pageController.getAllPages);
+adminRouter.post("/pages", pageController.createPage);
+adminRouter.get("/pages/:id", pageController.getPageById);
+adminRouter.put("/pages/:id", pageController.updatePage);
+adminRouter.delete("/pages/:id", pageController.deletePage);
 
+// Mount the admin router into the main router
+router.use(adminRouter);
 
 module.exports = router
