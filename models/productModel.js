@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   restaurant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'restaurant',
-    required: false
+    required: true
   },
   featured_image: {
     type: String,

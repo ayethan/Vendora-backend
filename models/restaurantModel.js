@@ -6,6 +6,12 @@ const restaurantSchema = new mongoose.Schema({
         required: [true, "Please provide a restaurant name"],
         trim: true
     },
+    slug: {
+        type: String,
+        required: [true, "Please provide a unique slug for the restaurant"],
+        unique: true,
+        trim: true
+    },
     description: {
         type: String,
         required: [true, "Please provide a description"]
@@ -58,7 +64,7 @@ const restaurantSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users',
-        required: true
+        required: false
     },
     products: [{
         type: mongoose.Schema.Types.ObjectId,

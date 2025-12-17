@@ -41,6 +41,11 @@ const promoSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    restaurant: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'restaurant',
+        required: true
     }
 }, {
     timestamps: true

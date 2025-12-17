@@ -4,8 +4,8 @@ const cuisineSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Please provide a cuisine name"],
-        unique: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     description: {
         type: String,
@@ -14,6 +14,10 @@ const cuisineSchema = new mongoose.Schema({
     image: {
         type: String,
         default: ""
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true
