@@ -17,9 +17,10 @@ const userSchema = new mongoose.Schema({
     required : true
   },
   isVerified : Boolean,
-  address: String,
-  city: String,
-  country: String,
+  addresses: [{
+    type: mongoose.Schema.ObjectId,
+    ref: 'addresses'
+  }]
 }, { timestamps: true });
 
 const userModel = mongoose.model('users', userSchema);

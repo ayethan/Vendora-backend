@@ -47,8 +47,8 @@ router.get("/signout",authController.userSignout)
 // This route only requires authentication, not admin permission, so it stays separate.
 router.get("/user-details", authToken, userController.userDetails);
 
+router.get("/restaurants/frontend", restaurantController.getAllFrontendRestaurants);
 router.get("/restaurants/:slug", restaurantController.getRestaurantBySlug);
-router.get("/restaurants", restaurantController.getAllFrontendRestaurants);
 
 
 // --- Admin Routes ---

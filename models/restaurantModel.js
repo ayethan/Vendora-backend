@@ -53,9 +53,24 @@ const restaurantSchema = new mongoose.Schema({
         ref: 'cuisines',
         required: [true, "Please provide a cuisine type"]
     },
-    openingHours: {
-        type: String,
-        required: [true, "Please provide opening hours"]
+    openingTimes: [{
+        day: {
+            type: String,
+            enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            required: true
+        },
+        open: {
+            type: String,
+            required: true
+        },
+        close: {
+            type: String,
+            required: true
+        }
+    }],
+    deliveryInfo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'deliveryInfo'
     },
     image: {
         type: String,
