@@ -23,6 +23,9 @@ const frontendProduct = require('../controllers/frontendPages/ProductController'
 const checkoutController = require('../controllers/frontendPages/checkoutController');
 const cartController = require('../controllers/frontendPages/cartController');
 
+// Import auth routes
+const authRoutes = require('./authRoutes');
+
 // public routes
 router.get("/product-list",frontendProduct.productList)
 router.get("/product/:id", frontendProduct.getProductById)
@@ -43,6 +46,9 @@ router.post("/create-checkout-session", authToken, checkoutController.createChec
 router.post("/signup",authController.userSignUp)
 router.post("/signin",authController.userSignIn)
 router.get("/signout",authController.userSignout)
+
+// Mount social auth routes
+router.use('/auth', authRoutes);
 
 // This route only requires authentication, not admin permission, so it stays separate.
 router.get("/user-details", authToken, userController.userDetails);

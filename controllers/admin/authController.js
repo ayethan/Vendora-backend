@@ -18,9 +18,11 @@ async function userSignIn(req, res) {
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      // { id: user._id, isAdmin: user.isAdmin }, // Standardize to use 'id'
+       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: 60 * 60 } // 1 hour
+      { expiresIn: 60 * 60 },
+      // { expiresIn: '24h' } // Match expiration with social login
     );
 
     const tokenOptions = {
@@ -107,8 +109,34 @@ async function userSignout(req, res) {
     });
   }
 }
+
+// New function for Google Auth Callback
+function googleAuthCallback(req, res) {
+    if (!req.user) {
+        return res.redirect(`${process.env.FRONTEND_URL}/signin?error=authentication_failed`);
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+        { id: req.user.id, isAdmin: req.user.isAdmin },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+    );
+
+    const tokenOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    }
+
+    res.cookie("token",token,tokenOptions)
+    // Redirect to the frontend application
+    res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
+}
+
 module.exports = {
   userSignIn,
   userSignUp,
-  userSignout
+  userSignout,
+  googleAuthCallback
 };

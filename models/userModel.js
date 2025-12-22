@@ -7,6 +7,11 @@ const userSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple documents to have no googleId
+  },
   phone: String,
   password : String,
   profilePic : String,
@@ -21,7 +26,17 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'addresses'
   }]
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  // Enable virtuals to be included in toJSON and toObject outputs
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Virtual property for isAdmin
+userSchema.virtual('isAdmin').get(function() {
+  return this.role === 'Admin';
+});
 
 const userModel = mongoose.model('users', userSchema);
 

@@ -6,27 +6,8 @@ const deliveryInfoModel = require('../../models/deliveryInfoModel');
 
 async function getAllRestaurants(req, res) {
   try {
-    const { lat, lon } = req.query;
-    let restaurants;
 
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lon);
-
-    if (!isNaN(latitude) && !isNaN(longitude)) {
-      restaurants = await restaurantModel.find({
-        location: {
-          $near: {
-            $geometry: {
-              type: "Point",
-              coordinates: [longitude, latitude]
-            },
-            $maxDistance: 50000 // 50 kilometers
-          }
-        }
-      }).populate('cuisine').populate('deliveryInfo');
-    } else {
-      restaurants = await restaurantModel.find().populate('cuisine').populate('deliveryInfo');
-    }
+    restaurants = await restaurantModel.find().populate('cuisine').populate('deliveryInfo');
 
     res.status(200).json(restaurants);
   } catch (error) {

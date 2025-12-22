@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const cookieParser = require('cookie-parser')
-require('dotenv').config();
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const passport = require('passport');
 const mongodb = require('mongoose');
+require('dotenv').config();
+require('./config/passport');
 
 const app = express();
 
@@ -12,7 +15,21 @@ app.use(cors({
     credentials : true
 }))
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
+
+// Add session middleware before passport middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000
+    }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Routes
 const routes = require('./routes/index');
