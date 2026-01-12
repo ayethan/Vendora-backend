@@ -1,108 +1,62 @@
+const adminAuthService = require('../../services/admin/adminAuthService');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const userModel = require('../../models/userModel');
 
-async function userSignIn(req, res) {
+const tokenOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+};
 
-  try{
+async function adminSignIn(req, res) {
+  try {
     const { email, password } = req.body;
-    const user = await userModel.findOne({ email });
+    const { user, token } = await adminAuthService.signIn(email, password);
 
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Invalid email or password' });
-    }
-
-    const token = jwt.sign(
-      // { id: user._id, isAdmin: user.isAdmin }, // Standardize to use 'id'
-       { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: 60 * 60 },
-      // { expiresIn: '24h' } // Match expiration with social login
-    );
-
-    const tokenOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    }
-    res.cookie("token",token,tokenOptions).status(200).json({
-      message : "Login successfully",
-      token : token,
-      data : user,
-      success : true,
-      error : false
-    })
-  }catch(error){
-    console.error('Error during user sign in:', error);
-    res.status(500).json({
-      message: 'Internal server error',
+    res.cookie("admin_token", token, tokenOptions).status(200).json({
+      message: "Admin login successfully",
+      token: token,
+      data: user,
+      success: true,
+      error: false
+    });
+  } catch (error) {
+    console.error('Error during admin sign in:', error);
+    res.status(400).json({
+      message: error.message || 'Internal server error',
       error: true
-     });
+    });
   }
-
 }
 
-async function userSignUp(req, res) {
+async function restaurantSignUp(req, res) {
   try {
-    const { name, email, password } = req.body;
-
-    const existingUser = await userModel.findOne({ email });
-    console.log(existingUser);
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new userModel({
-      name,
-      email,
-      role : "General",
-      password: hashedPassword,
-      isVerified: false,
-    });
-
-    await newUser.save();
+    const restaurantImage = req.file ? req.file.path : '';
+    const { user, restaurant } = await adminAuthService.signUpRestaurant(req.body, restaurantImage);
 
     res.status(201).json({
-      data: newUser,
-      message: 'User registered successfully',
+      data: { user, restaurant },
+      message: 'Restaurant registered successfully',
       error: false,
     });
   } catch (error) {
-    console.error('Error during user sign up:', error);
-    res.status(500).json({
-      message: 'Internal server error',
-      error: true
-     });
+    console.error('Error during restaurant sign up:', error);
+    res.status(400).json({
+      message: error.message || 'Internal server error during restaurant registration',
+      error: true,
+    });
   }
 }
 
-
-async function userSignout(req, res) {
-  try{
-    const tokenOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    };
-
-    res.clearCookie("token", tokenOptions);
-
+async function adminSignout(req, res) {
+  try {
+    res.clearCookie("admin_token", tokenOptions);
     res.json({
-      message: "Logout successfully",
-      success : true,
-      error : false
-    })
-
-  }catch(error){
-    console.error('Error during user sign out:', error);
+      message: "Admin logout successfully",
+      success: true,
+      error: false
+    });
+  } catch (error) {
+    console.error('Error during admin sign out:', error);
     res.status(500).json({
       message: 'Internal server error',
       error: true
@@ -110,33 +64,24 @@ async function userSignout(req, res) {
   }
 }
 
-// New function for Google Auth Callback
 function googleAuthCallback(req, res) {
-    if (!req.user) {
-        return res.redirect(`${process.env.FRONTEND_URL}/signin?error=authentication_failed`);
-    }
+  if (!req.user) {
+    return res.redirect(`${process.env.FRONTEND_URL}/signin?error=authentication_failed`);
+  }
 
-    // Generate JWT
-    const token = jwt.sign(
-        { id: req.user.id, isAdmin: req.user.isAdmin },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+  const token = jwt.sign(
+    { id: req.user.id, isAdmin: req.user.isAdmin },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
 
-    const tokenOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
-    }
-
-    res.cookie("token",token,tokenOptions)
-    // Redirect to the frontend application
-    res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
+  res.cookie("token", token, tokenOptions)
+    .redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
 }
 
 module.exports = {
-  userSignIn,
-  userSignUp,
-  userSignout,
-  googleAuthCallback
+  adminSignIn,
+  adminSignout,
+  googleAuthCallback,
+  restaurantSignUp
 };

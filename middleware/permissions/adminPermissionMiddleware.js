@@ -1,8 +1,14 @@
-const permission = require('../helpers/adminPermission');
+const permission = require('../../helpers/adminPermission');
 
 async function adminPermissionMiddleware(req, res, next) {
   try {
     const userId = req?.user?.userId;
+    const userRole = req?.user?.role;
+
+    if (!userId || userRole !== 'Admin') {
+      return res.status(403).json({ message: 'Access denied. Admins only.', success: false, error: true });
+    }
+
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized', success: false, error: true });
     }

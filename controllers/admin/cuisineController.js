@@ -11,6 +11,15 @@ async function getAllCuisines(req, res) {
   }
 }
 
+async function getAllCuisinesFrontend(req, res) {
+  try {
+    const cuisines = await cuisineModel.find();
+    res.status(200).json(cuisines);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching cuisines', success: false, error: true });
+  }
+}
+
 async function createCuisine(req, res) {
   try {
     const cuisine = new cuisineModel(req.body);
@@ -82,6 +91,7 @@ async function deleteCuisine(req, res) {
 
 module.exports = {
   getAllCuisines,
+  getAllCuisinesFrontend,
   createCuisine,
   getCuisineById,
   updateCuisine,

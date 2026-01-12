@@ -72,7 +72,7 @@ async function featuredProducts(req, res) {
 async function getProductById(req, res) {
   try {
     const productId = req.params.id;
-    const product = await productModel.findById(productId).exec();
+    const product = await productModel.findById(productId).populate('addons').exec();
     if (!product) {
       return res.status(404).json({ message: 'Product not found', success: false, error: true });
     }

@@ -1,4 +1,25 @@
 const userModel = require('../../models/userModel');
+const userService = require('../../services/admin/userService');
+
+async function getAdminDetails(req, res) {
+  try {
+    const userId = req.user.id || req.user.userId;
+    const user = await userService.getDetails(userId);
+
+    res.status(200).json({
+      message: 'Admin details fetched successfully',
+      data: user,
+      success: true,
+      error: false
+    });
+  } catch (error) {
+    console.error('Error fetching admin details:', error);
+    res.status(404).json({
+      message: error.message || 'Internal server error',
+      error: true
+    });
+  }
+}
 
 async function getUserAll(req, res) {
   try {
@@ -16,39 +37,6 @@ async function getUserAll(req, res) {
       error: true
      });
   }
-
-}
-
-async function userDetails(req, res) {
-  try{
-    const userId = req.user.id || req.user.userId; // Handle both token formats
-    console.log("User Details Controller - User ID from token:", userId);
-    
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID not found in token', error: true });
-    }
-
-    const user = await userModel.findById(userId);
-    console.log("Fetched User Details:", user);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found', error: true });
-    }
-
-    res.status(200).json({
-      message: 'User details fetched successfully',
-      data: user,
-      success: true,
-      error: false
-    });
-  }catch(error){
-    console.error('Error fetching user details:', error);
-    res.status(500).json({
-      message: 'Internal server error',
-      error: true
-     });
-  }
-
 
 }
 
@@ -88,6 +76,6 @@ async function updateUser(req, res) {
 
 module.exports = {
   getUserAll,
-  userDetails,
+  getAdminDetails,
   updateUser
 };

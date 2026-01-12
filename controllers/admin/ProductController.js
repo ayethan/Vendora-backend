@@ -7,7 +7,8 @@ async function getProductsByRestaurant(req, res) {
     if (!mongodb.isValidObjectId(restaurantId)) {
       return res.status(400).json({ message: 'Invalid restaurant ID', success: false, error: true });
     }
-    const products = await productModel.find({ restaurant: restaurantId }).populate('category').populate('restaurant');
+    const products = await productModel.find({ restaurant: restaurantId }).populate('category').populate('restaurant').populate('addons').populate('flavours');
+    console.log(products)
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching products for restaurant', success: false, error: true });
@@ -42,7 +43,9 @@ async function getProductById(req, res) {
       return res.status(400).json({ message: 'Invalid ID provided', success: false, error: true });
     }
 
-    const product = await productModel.findOne({ _id: productId, restaurant: restaurantId }).populate('category').populate('restaurant');
+    const product = await productModel.findOne({ _id: productId, restaurant: restaurantId }).populate('category').populate('restaurant').populate('addons');
+        console.log('products',product)
+
     if (!product) {
       return res.status(404).json({ message: 'Product not found for this restaurant', success: false, error: true });
     }

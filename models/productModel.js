@@ -26,6 +26,24 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  addons: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'products'
+  }],
+  flavours: [{
+    name: {
+      type: String,
+      required: true
+    },
+    extra_price: {
+      type: Number,
+      default: 0
+    },
+    is_default: {
+      type: Boolean,
+      default: false
+    }
+  }],
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'categories',
@@ -39,6 +57,10 @@ const productSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true,
+  },
+  position: {
+    type: Number,
+    required: false,
   },
 }, { timestamps: true });
 

@@ -19,11 +19,15 @@ async function getAllFrontendRestaurants(req, res) {
   try {
 
     const { lat, lon } = req.query;
+    console.log('Incoming lat:', lat, 'Incoming lon:', lon);
+
 
     let restaurants;
 
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lon);
+
+    console.log('Parsed latitude:', latitude, 'Parsed longitude:', longitude);
 
 
     if (!isNaN(latitude) && !isNaN(longitude)) {
@@ -39,12 +43,14 @@ async function getAllFrontendRestaurants(req, res) {
         }
       }).populate('cuisine').populate('deliveryInfo');
     }
-    // else {
-    //   restaurants = await restaurantModel.find().populate('cuisine').populate('deliveryInfo');
-    // }
+    else {
+      restaurants = await restaurantModel.find().populate('cuisine').populate('deliveryInfo');
+    }
+    console.log('Found restaurants:', restaurants);
 
     res.status(200).json(restaurants);
   } catch (error) {
+    console.error('Error fetching restaurants:', error);
     res.status(500).json({ message: 'Error fetching restaurants', success: false, error: true });
   }
 }
@@ -100,7 +106,7 @@ async function getRestaurantBySlug(req, res) {
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found', success: false, error: true });
     }
-    const products = await productModel.find({ restaurant: restaurant._id }).populate('category');
+    const products = await productModel.find({ restaurant: restaurant._id }).populate('category').populate('flavours').populate('addons');
     const restaurantWithProducts = {
       ...restaurant.toObject(),
       products: products

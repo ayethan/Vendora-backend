@@ -72,6 +72,10 @@ const restaurantSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'deliveryInfo'
     },
+    deliveryCharge: {
+        type: Number,
+        default: 0
+    },
     image: {
         type: String,
         default: ""

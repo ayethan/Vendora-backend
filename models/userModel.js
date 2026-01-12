@@ -22,11 +22,16 @@ const userSchema = new mongoose.Schema({
     required : true
   },
   isVerified : Boolean,
+  restaurant: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'restaurant',
+    required: false // Optional, as only Restaurant Owners will have this
+  },
   addresses: [{
     type: mongoose.Schema.ObjectId,
     ref: 'addresses'
   }]
-}, { 
+}, {
   timestamps: true,
   // Enable virtuals to be included in toJSON and toObject outputs
   toJSON: { virtuals: true },
