@@ -1,8 +1,27 @@
 const jwt = require('jsonwebtoken');
 
 async function authToken(req, res, next) {
-  // Check for specific role-based tokens first
-  let token = req.cookies.admin_token || req.cookies.restaurant_token || req.cookies.member_token || req.cookies.driver_token;
+  // Add this line for debugging
+  // console.log(`[AuthToken Middleware] Path: ${req.path}, Cookies:`, req.cookies);
+
+  // Check for specific role-based tokens first based on path
+  let token;
+  const path = req.path;
+
+  if (path.startsWith('/admin')) {
+    token = req.cookies.admin_token;
+  } else if (path.startsWith('/partner')) {
+    token = req.cookies.restaurant_token;
+  } else if (path.startsWith('/member')) {
+    token = req.cookies.member_token;
+  }
+
+  // If no specific token found by path, fall back to the original order
+  // This covers generic routes like /me, /cart etc.
+  if (!token) {
+    token = req.cookies.admin_token || req.cookies.restaurant_token || req.cookies.member_token || req.cookies.driver_token;
+  }
+
 
   // If no specific role token found, try the generic 'token' for backward compatibility
   if (!token) {

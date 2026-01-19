@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const userModel = require('../../models/userModel');
-const addressModel = require('../../models/addressModel');
+const userModel = require('../models/userModel');
+const addressModel = require('../models/addressModel');
 
 class MemberAuthService {
   async signIn(email, password) {
@@ -21,7 +21,7 @@ class MemberAuthService {
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email, role: user.role},
+      { userId: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: 60 * 60 }
     );
@@ -71,6 +71,17 @@ class MemberAuthService {
     await savedUser.save();
 
     return savedUser;
+  }
+
+  async getDetails(userId) {
+    if (!userId) {
+      throw new Error('User ID must be provided.');
+    }
+    const user = await userModel.findById(userId).populate('addresses');
+    if (!user) {
+      throw new Error('User not found.');
+    }
+    return user;
   }
 }
 

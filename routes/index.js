@@ -51,6 +51,7 @@ router.delete("/cart/remove/:productId", authToken, cartController.removeCartIte
 router.post("/create-checkout-session", authToken, checkoutController.createCheckoutSession);
 
 // --- Auth Routes ---
+router.get("/me", authToken, frontendAuthController.getMe);
 // Member
 router.post("/signup", frontendAuthController.memberSignup);
 router.post("/signin", frontendAuthController.memberSignin);

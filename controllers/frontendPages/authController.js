@@ -1,4 +1,6 @@
 const memberAuthService = require('../../services/memberAuthService');
+const userService = require('../../services/admin/userService');
+const partnerAuthService = require('../../services/partner/partnerAuthService');
 
 const tokenOptions = {
   httpOnly: true,
@@ -6,11 +8,57 @@ const tokenOptions = {
   sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
 };
 
+async function getMe(req, res) {
+  try {
+    const userPayload = req.user;
+    const userId = userPayload.id || userPayload.userId;
+
+    if (!userPayload.role) {
+      return res.status(400).json({ message: 'Role not found in token.' });
+    }
+
+    let data;
+    let message;
+
+    switch (userPayload.role) {
+      case 'Admin':
+        data = await userService.getDetails(userId);
+        message = 'Admin details fetched successfully';
+        break;
+      case 'Restaurant Owner':
+        const partnerData = await partnerAuthService.getDetails(userId);
+        data = partnerData; // Contains { user, restaurant }
+        message = 'Partner details fetched successfully';
+        break;
+      case 'General':
+        data = await memberAuthService.getDetails(userId);
+        message = 'Member details fetched successfully';
+        break;
+      default:
+        return res.status(403).json({ message: 'Unknown or unsupported user role.' });
+    }
+
+    res.status(200).json({
+      message: message,
+      data: data,
+      success: true,
+      error: false
+    });
+
+  } catch (error) {
+    console.error('Error in getMe controller:', error);
+    res.status(500).json({
+      message: error.message || "Error fetching user details",
+      error: true
+    });
+  }
+}
+
 async function getMemberDetails(req, res) {
   try {
     const userId = req.user.id || req.user.userId;
     const user = await memberAuthService.getDetails(userId);
-
+    console.log('Member Details:', user);
     res.status(200).json({
       message: 'Member details fetched successfully',
       data: user,
@@ -27,6 +75,7 @@ async function getMemberDetails(req, res) {
 }
 
 async function memberSignin(req, res) {
+  console.log("Member Signin Request Body:", 'hello');
   try {
     const { email, password } = req.body;
     const { user, token } = await memberAuthService.signIn(email, password);
@@ -83,6 +132,7 @@ async function memberSignout(req, res) {
 }
 
 module.exports = {
+  getMe,
   getMemberDetails,
   memberSignin,
   memberSignup,

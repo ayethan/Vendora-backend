@@ -2,10 +2,10 @@ const userModel = require('../../models/userModel');
 const restaurantModel = require('../../models/restaurantModel');
 
 async function partnerPermissionMiddleware(req, res, next) {
-  try {
+  // try {
     const userId = req?.user?.userId;
     const userRole = req?.user?.role;
-
+    console.log('Partner Permission Middleware:', { userId, userRole });
     if (!userId || userRole !== 'Restaurant Owner') {
       return res.status(403).json({ message: 'Access denied. Restaurant Owners only.', success: false, error: true });
     }
@@ -22,10 +22,10 @@ async function partnerPermissionMiddleware(req, res, next) {
 
     req.restaurant = restaurant;
     next();
-  } catch (err) {
-    console.error("Error in partnerPermissionMiddleware:", err);
-    res.status(500).json({ message: 'Authorization check failed', success: false, error: true });
-  }
+  // } catch (err) {
+  //   console.error("Error in partnerPermissionMiddleware:", err);
+  //   res.status(500).json({ message: 'Authorization check failed', success: false, error: true });
+  // }
 }
 
 module.exports = partnerPermissionMiddleware;

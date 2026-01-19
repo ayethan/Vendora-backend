@@ -1,5 +1,6 @@
 const productModel = require('../../models/productModel');
-const mongoose = require('mongoose'); // Using mongoose instead of mongodb for isValidObjectId
+const categoryModel = require('../../models/categoryModel')
+const mongoose = require('mongoose');
 
 // Helper function to extract restaurantId from request
 const getRestaurantId = (req) => {
@@ -7,9 +8,6 @@ const getRestaurantId = (req) => {
     return req.restaurant ? req.restaurant._id : null;
 };
 
-// @desc    Get all products for the authenticated restaurant
-// @route   GET /api/partner/products
-// @access  Private (Restaurant Owner)
 const getProducts = async (req, res) => {
     try {
         const restaurantId = getRestaurantId(req);
@@ -30,9 +28,6 @@ const getProducts = async (req, res) => {
     }
 };
 
-// @desc    Create a product for the authenticated restaurant
-// @route   POST /api/partner/products
-// @access  Private (Restaurant Owner)
 const createProduct = async (req, res) => {
     try {
         const restaurantId = getRestaurantId(req);
@@ -149,10 +144,20 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+async function getAllCategory(req, res) {
+  // try {
+    const categories = await categoryModel.find();
+    res.status(200).json(categories);
+  // } catch (error) {
+  //   res.status(500).json({ message: 'Error fetching categories', success: false, error: true });
+  // }
+}
+
 module.exports = {
     getProducts,
     createProduct,
     getProductById,
     updateProduct,
     deleteProduct,
+    getAllCategory,
 };

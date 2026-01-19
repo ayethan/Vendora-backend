@@ -14,13 +14,13 @@ router.use(partnerPermissionMiddleware);
 // Auth routes
 router.get('/me', partnerAuthController.getPartnerDetails);
 router.get('/signout', partnerAuthController.partnerSignOut);
-
+router.get('/categories', productController.getAllCategory);
 // Product Management Routes
-router.route('/products')
+router.route('/restaurants/:restaurantId/products')
     .get(productController.getProducts)
     .post(productController.createProduct);
 
-router.route('/products/:id')
+router.route('/restaurants/:restaurantId/products/:id')
     .get(productController.getProductById)
     .put(productController.updateProduct)
     .delete(productController.deleteProduct);
