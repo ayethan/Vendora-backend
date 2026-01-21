@@ -33,6 +33,7 @@ const frontendAuthController = require('../controllers/frontendPages/authControl
 // Import auth routes
 const authRoutes = require('./authRoutes');
 const partnerRoutes = require('./partnerRoutes');
+const memberRoutes = require('./memberRoutes'); // Import member routes
 
 // public routes
 router.get("/product-list",frontendProduct.productList)
@@ -133,5 +134,8 @@ router.use('/admin', adminRouter);
 
 // Mount partner routes
 router.use('/partner', partnerRoutes);
+
+// Mount member routes
+router.use('/member', memberRoutes);
 
 module.exports = router;

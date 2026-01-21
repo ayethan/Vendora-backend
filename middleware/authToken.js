@@ -14,13 +14,17 @@ async function authToken(req, res, next) {
     token = req.cookies.restaurant_token;
   } else if (path.startsWith('/member')) {
     token = req.cookies.member_token;
+  } else { // For generic routes like /me, /cart, etc., or other public routes that might need auth
+    token = req.cookies.member_token || req.cookies.admin_token || req.cookies.restaurant_token || req.cookies.driver_token;
   }
 
-  // If no specific token found by path, fall back to the original order
+  // If no specific role token found by path, fall back to the original order
   // This covers generic routes like /me, /cart etc.
-  if (!token) {
-    token = req.cookies.admin_token || req.cookies.restaurant_token || req.cookies.member_token || req.cookies.driver_token;
-  }
+  // This block is now integrated into the if/else-if/else above
+  // if (!token) {
+  //   token = req.cookies.admin_token || req.cookies.restaurant_token || req.cookies.member_token || req.cookies.driver_token;
+  // }
+
 
 
   // If no specific role token found, try the generic 'token' for backward compatibility
