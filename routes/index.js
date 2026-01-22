@@ -29,7 +29,7 @@ const frontendProduct = require('../controllers/frontendPages/ProductController'
 const checkoutController = require('../controllers/frontendPages/checkoutController');
 const cartController = require('../controllers/frontendPages/cartController');
 const frontendAuthController = require('../controllers/frontendPages/authController');
-
+const frontendPageController = require('../controllers/frontendPages/homePageController');
 // Import auth routes
 const authRoutes = require('./authRoutes');
 const partnerRoutes = require('./partnerRoutes');
@@ -41,6 +41,7 @@ router.get("/product/:id", frontendProduct.getProductById)
 router.get("/featured-products",frontendProduct.featuredProducts)
 router.get("/product/related/:category/:productId", frontendProduct.getRelatedProducts)
 router.get("/search", frontendProduct.searchProduct)
+router.get("/get-categories", frontendPageController.getAllCategory)
 
 //cart
 router.post("/cart/add", authToken, cartController.addToCart)
