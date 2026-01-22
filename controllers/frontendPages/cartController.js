@@ -3,17 +3,22 @@ const { getPopulatedCart } = require('../../helpers/cartHelpers');
 
 async function addToCart(req, res) {
   try {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, restaurantId } = req.body;
     const userId = req.user.userId;
 
-    if (!productId || !quantity) {
-      return res.status(400).json({ message: 'Product ID and quantity are required', success: false });
+    if (!productId || !quantity || !restaurantId) {
+      return res.status(400).json({ message: 'Product ID, quantity, and restaurant ID are required', success: false });
     }
 
     let cart = await Cart.findOne({ userId });
-
     if (!cart) {
-      cart = await Cart.create({ userId, items: [] });
+      // If no cart exists, create a new one with the provided restaurantId
+      cart = await Cart.create({ userId, restaurantId, items: [] });
+    } else {
+      // If a cart exists, check if the restaurantId matches
+      if (cart?.restaurantId?.toString() !== restaurantId) {
+        return res.status(400).json({ message: 'Cannot add items from a different restaurant. Please clear your current cart first.', success: false });
+      }
     }
 
     const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);

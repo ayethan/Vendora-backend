@@ -7,10 +7,15 @@ const cartSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  restaurantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'restaurant',
+    required: true,
+  },
   items: [{
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+      ref: 'products',
       required: true,
     },
     quantity: {
