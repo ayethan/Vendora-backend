@@ -58,7 +58,6 @@ async function getMemberDetails(req, res) {
   try {
     const userId = req.user.id || req.user.userId;
     const user = await memberAuthService.getDetails(userId);
-    console.log('Member Details:', user);
     res.status(200).json({
       message: 'Member details fetched successfully',
       data: user,
@@ -66,7 +65,6 @@ async function getMemberDetails(req, res) {
       error: false
     });
   } catch (error) {
-    console.error('Error fetching member details:', error);
     res.status(404).json({
       message: error.message || 'Internal server error',
       error: true

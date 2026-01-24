@@ -44,7 +44,10 @@ async function authToken(req, res, next) {
     next(); // Proceed to the next middleware or route handler
   } catch (error) {
     // This will catch any error from jwt.verify, including expiration or invalid signature
-    res.status(401).json({ message: 'Invalid or expired token.' });
+    res.status(401).json({
+       message: 'Invalid or expired token.',
+       isexpired: true
+    });
   }
 }
 
