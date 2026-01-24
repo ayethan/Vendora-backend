@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
   addresses: [{
     type: mongoose.Schema.ObjectId,
     ref: 'addresses'
+  }],
+  restaurantWishlist: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'restaurant'
   }]
 }, {
   timestamps: true,

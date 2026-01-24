@@ -51,12 +51,12 @@ const createCheckoutSession = async (req, res) => {
         deliveryFee: deliveryFee,
         taxAmount: taxAmount,
         discountAmount: discountAmount,
-        totalAmount: amount, // 'amount' here is the calculated total
+        totalAmount: amount,
         deliveryAddress: deliveryAddress,
         deliveryMethod: deliveryMethod,
         paymentTransactionId: paymentMethodId,
         paymentStatus: 'paid',
-        status: 'pending', // Initial status of the order
+        status: 'pending',
       });
 
       await order.save();

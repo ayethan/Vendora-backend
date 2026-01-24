@@ -99,6 +99,9 @@ async function removeCartItem(req, res) {
 
     cart.items = cart.items.filter(item => item.productId.toString() !== productId);
     await cart.save();
+    if(cart.items.length === 0){
+      await Cart.findOneAndDelete({ userId });
+    }
     const populatedCart = await getPopulatedCart(userId);
     res.status(200).json({ message: 'Item removed from cart', success: true, cart: populatedCart });
   } catch (error) {

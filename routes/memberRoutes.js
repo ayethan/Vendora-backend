@@ -19,4 +19,9 @@ router.delete('/addresses/:id', memberController.deleteAddress);
 // Order routes
 router.get('/orders', memberController.getOrders);
 
+// Wishlist routes
+router.get('/wishlist', memberController.getWishlist);
+router.post('/wishlist/restaurant', memberController.addRestaurantToWishlist);
+router.delete('/wishlist/restaurant/:restaurantId', memberController.removeRestaurantFromWishlist);
+
 module.exports = router;

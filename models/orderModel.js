@@ -24,26 +24,26 @@ const orderSchema = new mongoose.Schema({
         required: true,
         min: 1,
       },
-      price: Number, // Price at the time of order
+      price: Number,
     },
   ],
-  subtotal: { // New field
+  subtotal: {
     type: Number,
     required: true,
   },
-  deliveryFee: { // New field
+  deliveryFee: {
     type: Number,
     required: true,
   },
-  taxAmount: { // New field
+  taxAmount: {
     type: Number,
     default: 0,
   },
-  discountAmount: { // New field
+  discountAmount: {
     type: Number,
     default: 0,
   },
-  totalAmount: { // Renamed from 'amount'
+  totalAmount: {
     type: Number,
     required: true,
   },
@@ -55,7 +55,7 @@ const orderSchema = new mongoose.Schema({
     },
     required: true
   },
-  deliveryMethod: { // New field
+  deliveryMethod: {
     type: String,
     enum: ['delivery', 'pickup'],
     default: 'delivery',
@@ -65,23 +65,23 @@ const orderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'drivers'
   },
-  paymentTransactionId: { // Renamed from 'paymentMethodId'
+  paymentTransactionId: {
     type: String,
-    required: false, // Not required for COD
+    required: false,
   },
-  paymentStatus: { // New field, separated from general status
+  paymentStatus: {
     type: String,
     enum: ['pending', 'paid', 'failed', 'refunded'],
     default: 'pending',
     required: true,
   },
-  status: { // Updated enum for main order status
+  status: {
     type: String,
     enum: ['pending', 'accepted', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered', 'cancelled'],
     default: 'pending',
     required: true,
   },
-  // New status timestamps
+
   acceptedAt: {
     type: Date,
   },
