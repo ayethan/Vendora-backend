@@ -58,6 +58,11 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  isPopular: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
   position: {
     type: Number,
     required: false,

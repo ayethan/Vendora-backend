@@ -114,11 +114,40 @@ async function deleteProduct(req, res) {
   }
 }
 
+async function updatePopularStatus(req, res) {
+  try {
+    const { products } = req.body;
+
+    if (!Array.isArray(products)) {
+      return res.status(400).json({ message: 'products must be an array.', success: false, error: true });
+    }
+
+    const bulkOps = products.map(product => ({
+      updateOne: {
+        filter: { _id: product.id },
+        update: { $set: { isPopular: product.isPopular } },
+      },
+    }));
+
+    await productModel.bulkWrite(bulkOps);
+
+    res.status(200).json({
+      message: 'Popular status updated successfully',
+      success: true,
+      error: false
+    });
+  } catch (error) {
+    console.error('Update popular status error:', error);
+    res.status(500).json({ message: 'Internal server error while updating popular status', success: false, error: true });
+  }
+}
+
 module.exports = {
   getProductsByRestaurant,
   createProduct,
   getProductById,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  updatePopularStatus
 };
 

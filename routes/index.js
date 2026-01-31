@@ -94,6 +94,7 @@ adminRouter.post("/categories", categoryController.createCategory);
 adminRouter.get("/categories/:id", categoryController.getCategoryById);
 adminRouter.put("/categories/:id", categoryController.updateCategory);
 adminRouter.delete("/categories/:id", categoryController.deleteCategory);
+adminRouter.post("/categories/reorder", categoryController.reorderCategories);
 
 //cuisine
 adminRouter.get("/cuisines", cuisineController.getAllCuisines);
@@ -103,6 +104,7 @@ adminRouter.put("/cuisines/:id", cuisineController.updateCuisine);
 adminRouter.delete("/cuisines/:id", cuisineController.deleteCuisine);
 
 //products
+adminRouter.post("/products/update-popular-status", productRoutes.updatePopularStatus);
 adminRouter.get("/restaurants/:restaurantId/products", productRoutes.getProductsByRestaurant);
 adminRouter.post("/restaurants/:restaurantId/products", productRoutes.createProduct);
 adminRouter.get("/restaurants/:restaurantId/products/:id", productRoutes.getProductById);

@@ -7,9 +7,7 @@ const getRestaurantId = (req) => {
     return req.restaurant ? req.restaurant._id : null;
 };
 
-// @desc    Get all orders for the authenticated restaurant
-// @route   GET /api/partner/orders
-// @access  Private (Restaurant Owner)
+
 const getRestaurantOrders = async (req, res) => {
     try {
         const restaurantId = getRestaurantId(req);
@@ -18,8 +16,8 @@ const getRestaurantOrders = async (req, res) => {
         }
 
         const orders = await orderModel.find({ restaurant: restaurantId })
-            .populate('user')
-            .populate('products.product'); // Populate product details within the order
+            .populate('userId')
+            .populate('restaurant');
 
         res.status(200).json(orders);
     } catch (error) {
@@ -28,9 +26,7 @@ const getRestaurantOrders = async (req, res) => {
     }
 };
 
-// @desc    Get a single order by ID for the authenticated restaurant
-// @route   GET /api/partner/orders/:id
-// @access  Private (Restaurant Owner)
+
 const getOrderById = async (req, res) => {
     try {
         const restaurantId = getRestaurantId(req);
@@ -54,9 +50,6 @@ const getOrderById = async (req, res) => {
     }
 };
 
-// @desc    Update the status of an order for the authenticated restaurant
-// @route   PUT /api/partner/orders/:id/status
-// @access  Private (Restaurant Owner)
 const updateOrderStatus = async (req, res) => {
     try {
         const restaurantId = getRestaurantId(req);

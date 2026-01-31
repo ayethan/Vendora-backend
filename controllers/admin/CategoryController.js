@@ -77,11 +77,40 @@ async function deleteCategory(req, res) {
     }
   }
 
+async function reorderCategories(req, res) {
+  try {
+    const { categoryIds } = req.body;
+
+    if (!Array.isArray(categoryIds)) {
+      return res.status(400).json({ message: 'categoryIds must be an array.', success: false, error: true });
+    }
+
+    const bulkOps = categoryIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { displayOrder: index } },
+      },
+    }));
+
+    await categoryModel.bulkWrite(bulkOps);
+
+    res.status(200).json({
+      message: 'Categories reordered successfully',
+      success: true,
+      error: false
+    });
+  } catch (error) {
+    console.error('Reorder error:', error);
+    res.status(500).json({ message: 'Internal server error while reordering categories', success: false, error: true });
+  }
+}
+
 
 module.exports = {
   getAllCategory,
   createCategory,
   getCategoryById,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  reorderCategories
 };
