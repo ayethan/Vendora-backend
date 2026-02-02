@@ -6,6 +6,7 @@ async function getAllCategory(req, res) {
     const categories = await categoryModel.find();
     res.status(200).json(categories);
   } catch (error) {
+    console.error("Error in getAllCategory:", error);
     res.status(500).json({ message: 'Error fetching categories', success: false, error: true });
   }
 }
