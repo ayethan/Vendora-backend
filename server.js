@@ -36,10 +36,10 @@ const routes = require('./routes/index');
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 5000;
-const dbUri = process.env.MONGO_URI;
+const dbUri = process.env.MONGODB_URI;
 
 if(!dbUri) {
-  console.error("MONGO_URI is not defined in environment variables");
+  console.error("MONGODB_URI is not defined in environment variables");
   process.exit(1);
 }
 
