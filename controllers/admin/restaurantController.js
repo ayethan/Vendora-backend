@@ -2,6 +2,8 @@ const restaurantModel = require('../../models/restaurantModel');
 const productModel = require('../../models/productModel');
 const mongodb = require('mongoose');
 const deliveryInfoModel = require('../../models/deliveryInfoModel');
+const categoryModel = require('../../models/categoryModel');
+const cuisineModel = require('../../models/cuisineModel');
 
 
 async function getAllRestaurants(req, res) {
@@ -18,34 +20,50 @@ async function getAllRestaurants(req, res) {
 async function getAllFrontendRestaurants(req, res) {
   try {
 
-    const { lat, lon } = req.query;
-    console.log('Incoming lat:', lat, 'Incoming lon:', lon);
-
+    const { lat, lon, category } = req.query;
 
     let restaurants;
 
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lon);
 
-    console.log('Parsed latitude:', latitude, 'Parsed longitude:', longitude);
-
+    let query = {};
 
     if (!isNaN(latitude) && !isNaN(longitude)) {
-      restaurants = await restaurantModel.find({
-        location: {
-          $near: {
-            $geometry: {
-              type: "Point",
-              coordinates: [longitude, latitude]
-            },
-            $maxDistance: 50000 // 50 kilometers
-          }
+      query.location = {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [longitude, latitude]
+          },
+          $maxDistance: 50000 // 50 kilometers
         }
-      }).populate('cuisine').populate('deliveryInfo');
+      };
     }
-    else {
-      restaurants = await restaurantModel.find().populate('cuisine').populate('deliveryInfo');
+
+    if (category) {
+        // Find category by name
+        const categoryDoc = await categoryModel.findOne({ name: category });
+
+        if (categoryDoc) {
+            // Find products with this category
+            const products = await productModel.find({ category: categoryDoc._id });
+
+            if (products.length > 0) {
+                // Get unique restaurant IDs from the products
+                const restaurantIds = [...new Set(products.filter(p => p.restaurant).map(p => p.restaurant.toString()))];
+                query._id = { $in: restaurantIds.map(id => new mongodb.Types.ObjectId(id)) };
+            } else {
+                // No products in this category, so no restaurants to show
+                return res.status(200).json([]);
+            }
+        } else {
+            // No category found, so no restaurants to show
+            return res.status(200).json([]);
+        }
     }
+
+    restaurants = await restaurantModel.find(query).populate('cuisine').populate('deliveryInfo');
     console.log('Found restaurants:', restaurants);
 
     res.status(200).json(restaurants);

@@ -7,6 +7,7 @@ async function authToken(req, res, next) {
   // Check for specific role-based tokens first based on path
   let token;
   const path = req.path;
+  console.log("Auth Token Middleware - Path:", path);
 
   if (path.startsWith('/admin')) {
     token = req.cookies.admin_token;

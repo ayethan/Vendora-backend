@@ -73,7 +73,6 @@ async function getMemberDetails(req, res) {
 }
 
 async function memberSignin(req, res) {
-  console.log("Member Signin Request Body:", 'hello');
   try {
     const { email, password } = req.body;
     const { user, token } = await memberAuthService.signIn(email, password);

@@ -2,6 +2,9 @@ const Cart = require('../../models/cartModel');
 const { getPopulatedCart } = require('../../helpers/cartHelpers');
 
 async function addToCart(req, res) {
+  if (req.user.role !== 'General') {
+    return res.status(403).json({ message: 'Access denied. Only members can add items to the cart.', success: false });
+  }
   try {
     const { productId, quantity, restaurantId } = req.body;
     const userId = req.user.userId;
