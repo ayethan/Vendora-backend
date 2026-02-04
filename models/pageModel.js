@@ -18,7 +18,7 @@ const pageSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['About', 'Contact', 'Privacy', 'Terms', 'Other'],
+        enum: ['Partner','Courier','About', 'Contact', 'Privacy', 'Terms', 'Other'],
         default: 'Other'
     },
     status: {

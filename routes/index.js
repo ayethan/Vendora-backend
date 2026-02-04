@@ -16,6 +16,7 @@ const shopCategoryController = require('../controllers/admin/shopCategoryControl
 const pageController = require('../controllers/admin/PageController');
 const restaurantController = require('../controllers/admin/restaurantController');
 const cuisineController = require('../controllers/admin/cuisineController');
+const adminBlogController = require('../controllers/admin/blogController'); // NEW IMPORT
 
 // partner controllers
 const partnerAuthController = require("../controllers/partner/authController");
@@ -30,6 +31,8 @@ const checkoutController = require('../controllers/frontendPages/checkoutControl
 const cartController = require('../controllers/frontendPages/cartController');
 const frontendAuthController = require('../controllers/frontendPages/authController');
 const frontendPageController = require('../controllers/frontendPages/homePageController');
+const blogController = require('../controllers/frontendPages/blogController'); // NEW IMPORT
+const restaurantSearchController = require('../controllers/frontendPages/restaurantSearchController');
 // Import auth routes
 const authRoutes = require('./authRoutes');
 const partnerRoutes = require('./partnerRoutes');
@@ -41,7 +44,11 @@ router.get("/product/:id", frontendProduct.getProductById)
 router.get("/featured-products",frontendProduct.featuredProducts)
 router.get("/product/related/:category/:productId", frontendProduct.getRelatedProducts)
 router.get("/search", frontendProduct.searchProduct)
+router.get("/restaurants/search", restaurantSearchController.searchRestaurants);
 router.get("/get-categories", frontendPageController.getAllCategory)
+router.get("/page/:slug", frontendPageController.getPageBySlug)
+router.get("/blog", blogController.getAllBlogPosts); // NEW ROUTE
+router.get("/blog/:slug", blogController.getBlogPostBySlug); // NEW ROUTE
 
 //cart
 router.post("/cart/add", authToken, cartController.addToCart)
@@ -124,6 +131,13 @@ adminRouter.post("/pages", pageController.createPage);
 adminRouter.get("/pages/:id", pageController.getPageById);
 adminRouter.put("/pages/:id", pageController.updatePage);
 adminRouter.delete("/pages/:id", pageController.deletePage);
+
+// Blog Management
+adminRouter.get("/blogs", adminBlogController.getAllAdminBlogPosts);
+adminRouter.post("/blogs", adminBlogController.createBlogPost);
+adminRouter.get("/blogs/:id", adminBlogController.getBlogPostById);
+adminRouter.put("/blogs/:id", adminBlogController.updateBlogPost);
+adminRouter.delete("/blogs/:id", adminBlogController.deleteBlogPost);
 
 //restaurants
 adminRouter.get("/restaurants", restaurantController.getAllRestaurants);

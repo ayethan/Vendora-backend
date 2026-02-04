@@ -29,7 +29,7 @@ const createCheckoutSession = async (req, res) => {
       currency: 'usd',
       payment_method: paymentMethodId,
       confirm: true,
-      return_url: 'http://localhost:5173/checkout-success',
+      return_url: `${process.env.FRONTEND_URL}/checkout-success`,
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: 'never',

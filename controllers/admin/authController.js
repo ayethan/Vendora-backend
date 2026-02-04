@@ -8,7 +8,7 @@ const tokenOptions = {
 };
 
 async function adminSignIn(req, res) {
-  try {
+  // try {
     const { email, password } = req.body;
     const { user, token } = await adminAuthService.signIn(email, password);
 
@@ -19,13 +19,13 @@ async function adminSignIn(req, res) {
       success: true,
       error: false
     });
-  } catch (error) {
-    console.error('Error during admin sign in:', error);
-    res.status(400).json({
-      message: error.message || 'Internal server error',
-      error: true
-    });
-  }
+  // } catch (error) {
+  //   console.error('Error during admin sign in:', error);
+  //   res.status(400).json({
+  //     message: error.message || 'Internal server error',
+  //     error: true
+  //   });
+  // }
 }
 
 async function restaurantSignUp(req, res) {
