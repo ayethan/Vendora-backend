@@ -20,7 +20,7 @@ async function getAllRestaurants(req, res) {
 async function getAllFrontendRestaurants(req, res) {
   try {
 
-    const { lat, lon, category } = req.query;
+    const { lat, lon, category, cuisine } = req.query;
 
     let restaurants;
 
@@ -63,8 +63,14 @@ async function getAllFrontendRestaurants(req, res) {
         }
     }
 
-    restaurants = await restaurantModel.find(query).populate('cuisine').populate('deliveryInfo');
-    console.log('Found restaurants:', restaurants);
+    if (cuisine) {
+        if (!mongodb.Types.ObjectId.isValid(cuisine)) {
+            return res.status(400).json({ message: 'Invalid cuisine ID', success: false, error: true });
+        }
+        query.cuisine = new mongodb.Types.ObjectId(cuisine);
+    }
+
+    restaurants = await restaurantModel.find({ ...query, status: 'approved' }).populate('cuisine').populate('deliveryInfo');
 
     res.status(200).json(restaurants);
   } catch (error) {
@@ -97,7 +103,6 @@ async function createRestaurant(req, res) {
     };
     restaurant.slug = generateSlug(restaurant.name);
 
-    console.log(restaurant)
     await restaurant.save();
     res.status(201).json(restaurant);
   } catch (error) {
@@ -117,6 +122,20 @@ async function getRestaurantById(req, res) {
     res.status(500).json({ message: 'Error fetching restaurant', success: false, error: true });
   }
 }
+
+async function getFrontendRestaurantById(req, res) {
+  try {
+    const restaurantId = req.params.id;
+    const restaurant = await restaurantModel.findById(restaurantId).populate('deliveryInfo');
+    if (!restaurant) {
+      return res.status(404).json({ message: 'New Request restaurant not found', success: false, error: true });
+    }
+    res.status(200).json(restaurant);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching restaurant', success: false, error: true });
+  }
+}
+
 async function getRestaurantBySlug(req, res) {
   try {
     const restaurantSlug = req.params.slug;
@@ -200,6 +219,7 @@ module.exports = {
   getAllRestaurants,
   createRestaurant,
   getRestaurantById,
+  getFrontendRestaurantById,
   getRestaurantBySlug,
   getAllFrontendRestaurants,
   updateRestaurant,

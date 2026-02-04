@@ -89,11 +89,19 @@ const restaurantSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'products'
     }],
+
     status: {
         type: String,
-        enum: ['open', 'closed'],
-        default: 'open'
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
     },
+
+    isOpen: {
+        type: String,
+        enum: ['open', 'closed'],
+        default: 'closed'
+    },
+
     rating: {
         type: Number,
         default: 0,

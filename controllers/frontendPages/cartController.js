@@ -1,4 +1,5 @@
 const Cart = require('../../models/cartModel');
+const Product = require('../../models/productModel'); // Import Product model
 const { getPopulatedCart } = require('../../helpers/cartHelpers');
 
 async function addToCart(req, res) {
@@ -6,30 +7,54 @@ async function addToCart(req, res) {
     return res.status(403).json({ message: 'Access denied. Only members can add items to the cart.', success: false });
   }
   try {
-    const { productId, quantity, restaurantId } = req.body;
+    const { productId, quantity, restaurantId, addons: selectedAddonIds, flavour } = req.body;
     const userId = req.user.userId;
 
     if (!productId || !quantity || !restaurantId) {
       return res.status(400).json({ message: 'Product ID, quantity, and restaurant ID are required', success: false });
     }
 
+    // Fetch the product to get details of addons
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found', success: false });
+    }
+
     let cart = await Cart.findOne({ userId });
     if (!cart) {
-      // If no cart exists, create a new one with the provided restaurantId
       cart = await Cart.create({ userId, restaurantId, items: [] });
     } else {
-      // If a cart exists, check if the restaurantId matches
       if (cart?.restaurantId?.toString() !== restaurantId) {
         return res.status(400).json({ message: 'Cannot add items from a different restaurant. Please clear your current cart first.', success: false });
       }
     }
 
-    const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+    // Populate selected addons with their details (name, price)
+    const populatedAddons = selectedAddonIds ? selectedAddonIds.map(addonId => {
+      const foundAddon = product.addons.find(a => a._id.toString() === addonId);
+      return foundAddon ? { _id: foundAddon._id, name: foundAddon.name, price: foundAddon.price } : null;
+    }).filter(Boolean) : [];
+
+    // Find if an item with the exact product, flavour, and addons already exists
+    const itemIndex = cart.items.findIndex(item =>
+      item.productId.toString() === productId &&
+      item.flavour === flavour &&
+      // Compare addons (order-independent)
+      (item.addons.length === populatedAddons.length &&
+       item.addons.every(itemAddon =>
+         populatedAddons.some(addedAddon => addedAddon._id.toString() === itemAddon._id.toString())
+       ))
+    );
 
     if (itemIndex > -1) {
       cart.items[itemIndex].quantity += quantity;
     } else {
-      cart.items.push({ productId, quantity });
+      cart.items.push({
+        productId,
+        quantity,
+        flavour,
+        addons: populatedAddons,
+      });
     }
 
     await cart.save();

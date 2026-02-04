@@ -43,7 +43,6 @@ async function createBlogPost(req, res) {
 
     req.body.authorId = authorId;
     // req.body.author = authorUser.name || authorUser.username; // Use name or username
-    console.log('Creating blog post with data:', req.body);
     const newPost = await blogService.createBlog(req.body);
     res.status(201).json(newPost);
   } catch (error) {

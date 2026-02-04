@@ -29,7 +29,6 @@ async function getAllBlogPostsService(page = 1, limit = 10, category = '', tag =
     select: '-content', // Frontend might not need full content in list view
   };
   const result = await Blog.paginate(query, options);
-  console.log('Result:', result);
   return result;
 }
 

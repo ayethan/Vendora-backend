@@ -11,7 +11,7 @@ exports.searchRestaurants = async (req, res) => {
         // Case-insensitive search by restaurant name
         const restaurants = await Restaurant.find({
             name: { $regex: query, $options: 'i' }
-        }).select('_id name description address imageUrl cuisine'); // Select relevant fields
+        }).select('_id name slug description address city country image type cuisine openingTimes deliveryInfo status isOpen rating'); // Select relevant fields
 
         res.status(200).json({ restaurants });
 

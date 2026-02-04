@@ -20,7 +20,7 @@ const adminBlogController = require('../controllers/admin/blogController'); // N
 
 // partner controllers
 const partnerAuthController = require("../controllers/partner/authController");
-router.post("/partner/signin", partnerAuthController.partnerSignIn);
+router.post("/our-partner/signin", partnerAuthController.partnerSignIn);
 
 // Import upload middleware
 const upload = require('../middleware/upload');
@@ -79,6 +79,7 @@ router.post("/partner/register", upload.single('restaurantImage'), authControlle
 router.use('/auth', authRoutes);
 
 router.get("/restaurants/frontend", restaurantController.getAllFrontendRestaurants);
+router.get("/public/restaurants/:id", restaurantController.getFrontendRestaurantById);
 router.get("/restaurants/:slug", restaurantController.getRestaurantBySlug);
 
 router.get("/cuisines/frontend", cuisineController.getAllCuisinesFrontend);

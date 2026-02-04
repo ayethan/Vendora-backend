@@ -23,6 +23,21 @@ const cartSchema = new mongoose.Schema({
       required: true,
       min: 1,
     },
+    flavour: {
+      type: String, // Store the selected flavour as a string
+    },
+    addons: [{ // Store selected addons with their details
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'products.addons', // Reference to the addon within the product schema
+      },
+      name: {
+        type: String,
+      },
+      price: {
+        type: Number,
+      },
+    }],
   }],
 }, { timestamps: true });
 
