@@ -16,7 +16,7 @@ async function authToken(req, res, next) {
   } else if (path.startsWith('/member')) {
     token = req.cookies.member_token;
   } else { // For generic routes like /me, /cart, etc., or other public routes that might need auth
-    token =  req.cookies.admin_token || req.cookies.member_token || req.cookies.restaurant_token || req.cookies.driver_token;
+    token =  req.cookies.member_token || req.cookies.admin_token || req.cookies.restaurant_token || req.cookies.driver_token;
   }
 
   // If no specific role token found by path, fall back to the original order
