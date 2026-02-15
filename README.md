@@ -29,8 +29,6 @@ Before setting up the project, ensure you have the following installed:
     git clone https://github.com/ayethan/Vendora-backend.git
     cd Vendora/backend
     ```
-    (Note: Replace `https://github.com/ayethan/Vendora-backend.git` with the actual repository URL once open-sourced.)
-
 2.  **Install dependencies**:
     ```bash
     npm install
