@@ -1,5 +1,36 @@
 const cuisineModel = require('../../models/cuisineModel');
 const mongodb = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const createCuisineValidation = [
+  check('name').notEmpty().withMessage('Cuisine name is required').isString().withMessage('Cuisine name must be a string'),
+  validate
+];
+
+const getCuisineByIdValidation = [
+  check('id').isMongoId().withMessage('Invalid cuisine ID'),
+  validate
+];
+
+const updateCuisineValidation = [
+  check('id').isMongoId().withMessage('Invalid cuisine ID'),
+  check('name').optional().notEmpty().withMessage('Cuisine name cannot be empty').isString().withMessage('Cuisine name must be a string'),
+  validate
+];
+
+const deleteCuisineValidation = [
+  check('id').isMongoId().withMessage('Invalid cuisine ID'),
+  validate
+];
 
 
 async function getAllCuisines(req, res) {
@@ -48,9 +79,6 @@ async function getCuisineById(req, res) {
 async function updateCuisine(req, res) {
   try {
     const cuisineId = req.params.id;
-    if (!mongodb.isValidObjectId(cuisineId)) {
-      return res.status(400).json({message: 'Invalid cuisine ID', success: false, error: true});
-    }
     const updatedData = req.body;
     const cuisine = await cuisineModel.findByIdAndUpdate(cuisineId, updatedData, { new: true, runValidators: true });
     if (!cuisine) {
@@ -71,9 +99,6 @@ async function updateCuisine(req, res) {
 async function deleteCuisine(req, res) {
   try {
     const cuisineId = req.params.id;
-    if (!mongodb.isValidObjectId(cuisineId)) {
-      return res.status(400).json({ message: 'Invalid cuisine ID', success: false, error: true });
-    }
     const cuisine = await cuisineModel.findByIdAndDelete(cuisineId);
     if (!cuisine) {
       return res.status(404).json({message: 'Cuisine not found', success: false, error: true});
@@ -93,7 +118,11 @@ module.exports = {
   getAllCuisines,
   getAllCuisinesFrontend,
   createCuisine,
+  createCuisineValidation,
   getCuisineById,
+  getCuisineByIdValidation,
   updateCuisine,
-  deleteCuisine
+  updateCuisineValidation,
+  deleteCuisine,
+  deleteCuisineValidation
 };

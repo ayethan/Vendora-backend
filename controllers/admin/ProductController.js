@@ -1,12 +1,72 @@
 const productModel = require('../../models/productModel');
 const mongodb = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const getProductsByRestaurantValidation = [
+  check('restaurantId').isMongoId().withMessage('Invalid restaurant ID'),
+  validate
+];
+
+const createProductValidation = [
+  check('restaurantId').isMongoId().withMessage('Invalid restaurant ID'),
+  check('name').notEmpty().withMessage('Product name is required').isString().withMessage('Product name must be a string'),
+  check('description').optional().isString().withMessage('Description must be a string'),
+  check('price').isFloat({ gt: 0 }).withMessage('Price must be a positive number'),
+  check('category').isMongoId().withMessage('Invalid category ID'),
+  check('addons').optional().isArray().withMessage('Addons must be an array of IDs'),
+  check('addons.*').isMongoId().withMessage('Each addon must be a valid Mongo ID'),
+  check('flavours').optional().isArray().withMessage('Flavours must be an array of IDs'),
+  check('flavours.*').isMongoId().withMessage('Each flavour must be a valid Mongo ID'),
+  check('isAvailable').optional().isBoolean().withMessage('isAvailable must be a boolean'),
+  validate
+];
+
+const getProductByIdValidation = [
+  check('restaurantId').isMongoId().withMessage('Invalid restaurant ID'),
+  check('id').isMongoId().withMessage('Invalid product ID'),
+  validate
+];
+
+const updateProductValidation = [
+  check('restaurantId').isMongoId().withMessage('Invalid restaurant ID'),
+  check('id').isMongoId().withMessage('Invalid product ID'),
+  check('name').optional().notEmpty().withMessage('Product name cannot be empty').isString().withMessage('Product name must be a string'),
+  check('description').optional().isString().withMessage('Description must be a string'),
+  check('price').optional().isFloat({ gt: 0 }).withMessage('Price must be a positive number'),
+  check('category').optional().isMongoId().withMessage('Invalid category ID'),
+  check('addons').optional().isArray().withMessage('Addons must be an array of IDs'),
+  check('addons.*').optional().isMongoId().withMessage('Each addon must be a valid Mongo ID'),
+  check('flavours').optional().isArray().withMessage('Flavours must be an array of IDs'),
+  check('flavours.*').optional().isMongoId().withMessage('Each flavour must be a valid Mongo ID'),
+  check('isAvailable').optional().isBoolean().withMessage('isAvailable must be a boolean'),
+  validate
+];
+
+const deleteProductValidation = [
+  check('restaurantId').isMongoId().withMessage('Invalid restaurant ID'),
+  check('id').isMongoId().withMessage('Invalid product ID'),
+  validate
+];
+
+const updatePopularStatusValidation = [
+  check('products').isArray().withMessage('Products must be an array'),
+  check('products.*.id').isMongoId().withMessage('Each product ID must be a valid Mongo ID'),
+  check('products.*.isPopular').isBoolean().withMessage('isPopular must be a boolean'),
+  validate
+];
 
 async function getProductsByRestaurant(req, res) {
   try {
     const restaurantId = req.params.restaurantId;
-    if (!mongodb.isValidObjectId(restaurantId)) {
-      return res.status(400).json({ message: 'Invalid restaurant ID', success: false, error: true });
-    }
     const products = await productModel.find({ restaurant: restaurantId }).populate('category').populate('restaurant').populate('addons').populate('flavours');
     console.log(products)
     res.status(200).json(products);
@@ -18,10 +78,6 @@ async function getProductsByRestaurant(req, res) {
 async function createProduct(req, res) {
   try {
     const restaurantId = req.params.restaurantId;
-    if (!mongodb.isValidObjectId(restaurantId)) {
-      return res.status(400).json({ message: 'Invalid restaurant ID', success: false, error: true });
-    }
-
     const productData = req.body;
     // Ensure the restaurant ID from the URL is used, overriding any in the body
     productData.restaurant = restaurantId;
@@ -39,10 +95,6 @@ async function getProductById(req, res) {
   try {
     const { restaurantId, id: productId } = req.params;
 
-    if (!mongodb.isValidObjectId(restaurantId) || !mongodb.isValidObjectId(productId)) {
-      return res.status(400).json({ message: 'Invalid ID provided', success: false, error: true });
-    }
-
     const product = await productModel.findOne({ _id: productId, restaurant: restaurantId }).populate('category').populate('restaurant').populate('addons');
         console.log('products',product)
 
@@ -58,10 +110,6 @@ async function getProductById(req, res) {
 async function updateProduct(req, res) {
   try {
     const { restaurantId, id: productId } = req.params;
-
-    if (!mongodb.isValidObjectId(restaurantId) || !mongodb.isValidObjectId(productId)) {
-      return res.status(400).json({ message: 'Invalid ID provided', success: false, error: true });
-    }
 
     const updatedData = req.body;
     // Prevent changing the restaurant of a product via update
@@ -95,10 +143,6 @@ async function deleteProduct(req, res) {
   try {
     const { restaurantId, id: productId } = req.params;
 
-    if (!mongodb.isValidObjectId(restaurantId) || !mongodb.isValidObjectId(productId)) {
-      return res.status(400).json({ message: 'Invalid ID provided', success: false, error: true });
-    }
-
     const product = await productModel.findOneAndDelete({ _id: productId, restaurant: restaurantId });
     if (!product) {
       return res.status(404).json({ message: 'Product not found for this restaurant', success: false, error: true });
@@ -117,10 +161,6 @@ async function deleteProduct(req, res) {
 async function updatePopularStatus(req, res) {
   try {
     const { products } = req.body;
-
-    if (!Array.isArray(products)) {
-      return res.status(400).json({ message: 'products must be an array.', success: false, error: true });
-    }
 
     const bulkOps = products.map(product => ({
       updateOne: {
@@ -144,10 +184,16 @@ async function updatePopularStatus(req, res) {
 
 module.exports = {
   getProductsByRestaurant,
+  getProductsByRestaurantValidation,
   createProduct,
+  createProductValidation,
   getProductById,
+  getProductByIdValidation,
   updateProduct,
+  updateProductValidation,
   deleteProduct,
-  updatePopularStatus
+  deleteProductValidation,
+  updatePopularStatus,
+  updatePopularStatusValidation
 };
 

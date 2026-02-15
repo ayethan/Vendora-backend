@@ -1,5 +1,34 @@
 const adminAuthService = require('../../services/admin/adminAuthService');
 const jwt = require('jsonwebtoken');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const adminSignInValidation = [
+  check('email').isEmail().withMessage('Valid email is required'),
+  check('password').notEmpty().withMessage('Password is required'),
+  validate
+];
+
+const restaurantSignUpValidation = [
+  check('name').notEmpty().withMessage('Restaurant name is required'),
+  check('email').isEmail().withMessage('Valid email is required'),
+  check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  check('ownerName').notEmpty().withMessage('Owner name is required'),
+  check('phone').notEmpty().withMessage('Phone number is required'),
+  check('address').notEmpty().withMessage('Address is required'),
+  check('city').notEmpty().withMessage('City is required'),
+  check('state').notEmpty().withMessage('State is required'),
+  check('zip').notEmpty().withMessage('Zip code is required'),
+  validate
+];
 
 const tokenOptions = {
   httpOnly: true,
@@ -81,7 +110,9 @@ function googleAuthCallback(req, res) {
 
 module.exports = {
   adminSignIn,
+  adminSignInValidation,
   adminSignout,
   googleAuthCallback,
-  restaurantSignUp
+  restaurantSignUp,
+  restaurantSignUpValidation
 };

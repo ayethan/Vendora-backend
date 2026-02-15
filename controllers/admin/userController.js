@@ -1,5 +1,27 @@
 const userModel = require('../../models/userModel');
 const userService = require('../../services/admin/userService');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const updateUserValidation = [
+  check('id').isMongoId().withMessage('Invalid user ID'),
+  check('name').optional().isString().withMessage('Name must be a string'),
+  check('email').optional().isEmail().withMessage('Valid email is required'),
+  check('role').optional().isString().withMessage('Role must be a string'), // Consider .isIn(['admin', 'member', 'partner'])
+  check('address').optional().isString().withMessage('Address must be a string'),
+  check('city').optional().isString().withMessage('City must be a string'),
+  check('country').optional().isString().withMessage('Country must be a string'),
+  check('phone').optional().isString().withMessage('Phone number must be a string'),
+  validate
+];
 
 async function getAdminDetails(req, res) {
   try {
@@ -77,5 +99,6 @@ async function updateUser(req, res) {
 module.exports = {
   getUserAll,
   getAdminDetails,
-  updateUser
+  updateUser,
+  updateUserValidation
 };

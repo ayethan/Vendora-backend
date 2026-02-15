@@ -1,5 +1,15 @@
 const categoryModel = require('../../models/categoryModel')
 const mongodb = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
 
 
 async function getAllCategory(req, res) {
@@ -12,6 +22,7 @@ async function getAllCategory(req, res) {
 }
 
 async function createCategory(req, res) {
+  // Manual validation can be added here if needed before express-validator
   try {
     const category = new categoryModel(req.body);
     await category.save();
@@ -20,6 +31,38 @@ async function createCategory(req, res) {
     res.status(500).json({ message: 'Error creating category', success: false, error: true });
   }
 }
+
+// Validation middleware for createCategory
+const createCategoryValidation = [
+  check('name').notEmpty().withMessage('Category name is required').isString().withMessage('Category name must be a string'),
+  validate
+];
+
+// Validation middleware for updateCategory
+const updateCategoryValidation = [
+  check('id').isMongoId().withMessage('Invalid Category ID'),
+  check('name').optional().notEmpty().withMessage('Category name cannot be empty').isString().withMessage('Category name must be a string'),
+  validate
+];
+
+// Validation middleware for reorderCategories
+const reorderCategoriesValidation = [
+  check('categoryIds').isArray().withMessage('categoryIds must be an array'),
+  check('categoryIds.*').isMongoId().withMessage('Each categoryId must be a valid Mongo ID'),
+  validate
+];
+
+// Validation middleware for getCategoryById
+const getCategoryByIdValidation = [
+  check('id').isMongoId().withMessage('Invalid Category ID'),
+  validate
+];
+
+// Validation middleware for deleteCategory
+const deleteCategoryValidation = [
+  check('id').isMongoId().withMessage('Invalid Category ID'),
+  validate
+];
 
 async function getCategoryById(req, res) {
   try {
@@ -37,9 +80,6 @@ async function getCategoryById(req, res) {
 async function updateCategory(req, res) {
   try {
     const categoryId = req.params.id;
-    if (!mongodb.isValidObjectId(categoryId)) {
-      return res.status(400).json({message: 'Invalid category ID', success: false, error: true});
-    }
     const updatedData = req.body;
     const category = await categoryModel.findByIdAndUpdate(categoryId, updatedData, { new: true, runValidators: true });
     if (!category) {
@@ -60,9 +100,6 @@ async function updateCategory(req, res) {
 async function deleteCategory(req, res) {
   try {
     const categoryId = req.params.id;
-    if (!mongodb.isValidObjectId(categoryId)) {
-      return res.status(400).json({ message: 'Invalid category ID', success: false, error: true });
-    }
     const category = await categoryModel.findByIdAndDelete(categoryId);
     if (!category) {
       return res.status(404).json({message: 'Category not found', success: false, error: true});
@@ -109,8 +146,13 @@ async function reorderCategories(req, res) {
 module.exports = {
   getAllCategory,
   createCategory,
+  createCategoryValidation,
   getCategoryById,
+  getCategoryByIdValidation,
   updateCategory,
+  updateCategoryValidation,
   deleteCategory,
-  reorderCategories
+  deleteCategoryValidation,
+  reorderCategories,
+  reorderCategoriesValidation
 };

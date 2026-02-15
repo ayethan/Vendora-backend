@@ -1,5 +1,56 @@
 const pageModel = require('../../models/pageModel')
 const mongodb = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const createPageValidation = [
+  check('title').notEmpty().withMessage('Title is required').isString().withMessage('Title must be a string'),
+  check('content').notEmpty().withMessage('Content is required').isString().withMessage('Content must be a string'),
+  check('slug').optional().isString().withMessage('Slug must be a string')
+    .custom(async (slug, { req }) => {
+      if (slug) {
+        const existingPage = await pageModel.findOne({ slug });
+        if (existingPage) {
+          throw new Error('Page with the same slug already exists');
+        }
+      }
+    }),
+  validate
+];
+
+const getPageByIdValidation = [
+  check('id').isMongoId().withMessage('Invalid page ID'),
+  validate
+];
+
+const updatePageValidation = [
+  check('id').isMongoId().withMessage('Invalid page ID'),
+  check('title').optional().notEmpty().withMessage('Title cannot be empty').isString().withMessage('Title must be a string'),
+  check('content').optional().notEmpty().withMessage('Content cannot be empty').isString().withMessage('Content must be a string'),
+  check('slug').optional().isString().withMessage('Slug must be a string')
+    .custom(async (slug, { req }) => {
+      if (slug) {
+        const existingPage = await pageModel.findOne({ slug, _id: { $ne: req.params.id } });
+        if (existingPage) {
+          throw new Error('Page with the same slug already exists');
+        }
+      }
+    }),
+  validate
+];
+
+const deletePageValidation = [
+  check('id').isMongoId().withMessage('Invalid page ID'),
+  validate
+];
 
 
 async function getAllPages(req, res) {
@@ -14,16 +65,6 @@ async function getAllPages(req, res) {
 async function createPage(req, res) {
   try {
     const page = new pageModel(req.body);
-    const existingPage = await pageModel.findOne({ slug: req.body.slug });
-    if (existingPage) {
-      return res.status(400).json({ message: 'Page with the same slug already exists', success: false, error: true });
-    }
-    if (!page.title) {
-      return res.status(400).json({ message: 'Title is required', success: false, error: true });
-    }
-    if (!page.content) {
-      return res.status(400).json({ message: 'Content is required', success: false, error: true });
-    }
     const generateSlug = (title) => {
       const slug = title.toLowerCase().replace(/\s+/g, '-');
       return slug;
@@ -53,9 +94,6 @@ async function getPageById(req, res) {
 async function updatePage(req, res) {
   try {
     const pageId = req.params.id;
-    if (!mongodb.isValidObjectId(pageId)) {
-      return res.status(400).json({message: 'Invalid page ID', success: false, error: true});
-    }
     const updatedData = req.body;
     const page = await pageModel.findByIdAndUpdate(pageId, updatedData, { new: true, runValidators: true });
     if (!page) {
@@ -76,9 +114,6 @@ async function updatePage(req, res) {
 async function deletePage(req, res) {
   try {
     const pageId = req.params.id;
-    if (!mongodb.isValidObjectId(pageId)) {
-      return res.status(400).json({ message: 'Invalid page ID', success: false, error: true });
-    }
     const page = await pageModel.findByIdAndDelete(pageId);
     if (!page) {
       return res.status(404).json({message: 'page not found', success: false, error: true});
@@ -97,7 +132,11 @@ async function deletePage(req, res) {
 module.exports = {
   getAllPages,
   createPage,
+  createPageValidation,
   getPageById,
+  getPageByIdValidation,
   updatePage,
-  deletePage
+  updatePageValidation,
+  deletePage,
+  deletePageValidation
 };

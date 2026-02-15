@@ -1,5 +1,36 @@
 const shopCategoryModel = require('../../models/shopCategoryModel');
 const mongodb = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const createShopCategoryValidation = [
+  check('name').notEmpty().withMessage('Shop category name is required').isString().withMessage('Shop category name must be a string'),
+  validate
+];
+
+const getShopCategoryByIdValidation = [
+  check('id').isMongoId().withMessage('Invalid shop category ID'),
+  validate
+];
+
+const updateShopCategoryValidation = [
+  check('id').isMongoId().withMessage('Invalid shop category ID'),
+  check('name').optional().notEmpty().withMessage('Shop category name cannot be empty').isString().withMessage('Shop category name must be a string'),
+  validate
+];
+
+const deleteShopCategoryValidation = [
+  check('id').isMongoId().withMessage('Invalid shop category ID'),
+  validate
+];
 
 async function getAllShopCategories(req, res) {
   try {
@@ -36,9 +67,6 @@ async function getShopCategoryById(req, res) {
 async function updateShopCategory(req, res) {
   try {
     const categoryId = req.params.id;
-    if (!mongodb.isValidObjectId(categoryId)) {
-      return res.status(400).json({message: 'Invalid shop category ID', success: false, error: true});
-    }
     const updatedData = req.body;
     const category = await shopCategoryModel.findByIdAndUpdate(categoryId, updatedData, { new: true, runValidators: true });
     if (!category) {
@@ -59,9 +87,6 @@ async function updateShopCategory(req, res) {
 async function deleteShopCategory(req, res) {
   try {
     const categoryId = req.params.id;
-    if (!mongodb.isValidObjectId(categoryId)) {
-      return res.status(400).json({ message: 'Invalid shop category ID', success: false, error: true });
-    }
     const category = await shopCategoryModel.findByIdAndDelete(categoryId);
     if (!category) {
       return res.status(404).json({message: 'Shop category not found', success: false, error: true});
@@ -80,7 +105,11 @@ async function deleteShopCategory(req, res) {
 module.exports = {
   getAllShopCategories,
   createShopCategory,
+  createShopCategoryValidation,
   getShopCategoryById,
+  getShopCategoryByIdValidation,
   updateShopCategory,
-  deleteShopCategory
+  updateShopCategoryValidation,
+  deleteShopCategory,
+  deleteShopCategoryValidation
 };

@@ -1,5 +1,46 @@
 const blogService = require('../../services/blogService');
 const mongoose = require('mongoose');
+const { check, validationResult } = require('express-validator');
+
+// Helper function to handle validation errors
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array(), success: false, error: true });
+  }
+  next();
+};
+
+const getBlogPostByIdValidation = [
+  check('id').isMongoId().withMessage('Invalid blog post ID'),
+  validate
+];
+
+const createBlogPostValidation = [
+  check('title').notEmpty().withMessage('Blog title is required').isString().withMessage('Blog title must be a string'),
+  check('content').notEmpty().withMessage('Blog content is required').isString().withMessage('Blog content must be a string'),
+  check('slug').optional().isString().withMessage('Slug must be a string'),
+  check('metaTitle').optional().isString().withMessage('Meta title must be a string'),
+  check('metaDescription').optional().isString().withMessage('Meta description must be a string'),
+  check('keywords').optional().isString().withMessage('Keywords must be a string'),
+  validate
+];
+
+const updateBlogPostValidation = [
+  check('id').isMongoId().withMessage('Invalid blog post ID'),
+  check('title').optional().notEmpty().withMessage('Blog title cannot be empty').isString().withMessage('Blog title must be a string'),
+  check('content').optional().notEmpty().withMessage('Blog content cannot be empty').isString().withMessage('Blog content must be a string'),
+  check('slug').optional().isString().withMessage('Slug must be a string'),
+  check('metaTitle').optional().isString().withMessage('Meta title must be a string'),
+  check('metaDescription').optional().isString().withMessage('Meta description must be a string'),
+  check('keywords').optional().isString().withMessage('Keywords must be a string'),
+  validate
+];
+
+const deleteBlogPostValidation = [
+  check('id').isMongoId().withMessage('Invalid blog post ID'),
+  validate
+];
 const User = require('../../models/userModel');
 const blogModel = require('../../models/blogModel');
 
@@ -15,9 +56,6 @@ async function getAllAdminBlogPosts(req, res) {
 async function getBlogPostById(req, res) {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid blog post ID', success: false, error: true });
-    }
     const post = await blogService.getBlogById(id);
     if (!post) {
       return res.status(404).json({ message: 'Blog post not found', success: false, error: true });
@@ -54,10 +92,6 @@ async function createBlogPost(req, res) {
 async function updateBlogPost(req, res) {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid blog post ID', success: false, error: true });
-    }
-
     // Ensure authorId is not updated from req.body
     if (req.body.authorId) {
       delete req.body.authorId;
@@ -86,9 +120,6 @@ async function updateBlogPost(req, res) {
 async function deleteBlogPost(req, res) {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid blog post ID', success: false, error: true });
-    }
     const deletedPost = await blogService.deleteBlogPostService(id);
     if (!deletedPost) {
       return res.status(404).json({ message: 'Blog post not found', success: false, error: true });
@@ -103,7 +134,11 @@ async function deleteBlogPost(req, res) {
 module.exports = {
   getAllAdminBlogPosts,
   getBlogPostById,
+  getBlogPostByIdValidation,
   createBlogPost,
+  createBlogPostValidation,
   updateBlogPost,
+  updateBlogPostValidation,
   deleteBlogPost,
+  deleteBlogPostValidation,
 };
