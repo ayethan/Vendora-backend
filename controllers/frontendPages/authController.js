@@ -1,6 +1,43 @@
 const memberAuthService = require('../../services/memberAuthService');
 const userService = require('../../services/admin/userService');
 const partnerAuthService = require('../../services/partner/partnerAuthService');
+const { check, validationResult } = require('express-validator');
+
+// Validation rules for member signup
+const validateMemberSignup = [
+  check('name')
+    .notEmpty().withMessage('Name is required')
+    .isLength({ min: 2 }).withMessage('Name must be at least 2 characters long'),
+  check('email')
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format'),
+  check('password')
+    .notEmpty().withMessage('Password is required')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array(), message: 'Validation failed', error: true });
+    }
+    next();
+  }
+];
+
+// Validation rules for member signin
+const validateMemberSignin = [
+  check('email')
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format'),
+  check('password')
+    .notEmpty().withMessage('Password is required'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array(), message: 'Validation failed', error: true });
+    }
+    next();
+  }
+];
 
 const tokenOptions = {
   httpOnly: true,
@@ -72,8 +109,7 @@ async function getMemberDetails(req, res) {
   }
 }
 
-async function memberSignin(req, res) {
-  try {
+async function memberSignin(req, res, next) {
     const { email, password } = req.body;
     const { user, token } = await memberAuthService.signIn(email, password);
 
@@ -84,17 +120,9 @@ async function memberSignin(req, res) {
       success: true,
       error: false
     });
-  } catch (error) {
-    console.error('Error during user sign in:', error);
-    res.status(400).json({
-      message: error.message || 'Internal server error',
-      error: true
-    });
-  }
 }
 
-async function memberSignup(req, res) {
-  try {
+async function memberSignup(req, res, next) {
     const savedUser = await memberAuthService.signUp(req.body);
 
     res.status(201).json({
@@ -102,13 +130,6 @@ async function memberSignup(req, res) {
       message: 'User registered successfully',
       error: false,
     });
-  } catch (error) {
-    console.error('Error during user sign up:', error);
-    res.status(400).json({
-      message: error.message || 'Internal server error',
-      error: true
-    });
-  }
 }
 
 async function memberSignout(req, res) {
@@ -134,4 +155,6 @@ module.exports = {
   memberSignin,
   memberSignup,
   memberSignout,
+  validateMemberSignup,
+  validateMemberSignin,
 };

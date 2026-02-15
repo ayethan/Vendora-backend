@@ -54,4 +54,9 @@ mongodb.connect(dbUri)
   console.error("Failed to connect to MongoDB", err);
 });
 
+const errorHandler = require('./middleware/errorMiddleware');
+
+// Error handling middleware
+app.use(errorHandler);
+
 module.exports = app;

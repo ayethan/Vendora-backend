@@ -29,7 +29,7 @@ const upload = require('../middleware/upload');
 const frontendProduct = require('../controllers/frontendPages/ProductController');
 const checkoutController = require('../controllers/frontendPages/checkoutController');
 const cartController = require('../controllers/frontendPages/cartController');
-const frontendAuthController = require('../controllers/frontendPages/authController');
+const { memberSignup, memberSignin, memberSignout, getMe, getMemberDetails, validateMemberSignup, validateMemberSignin } = require('../controllers/frontendPages/authController');
 const frontendPageController = require('../controllers/frontendPages/homePageController');
 const blogController = require('../controllers/frontendPages/blogController'); // NEW IMPORT
 const restaurantSearchController = require('../controllers/frontendPages/restaurantSearchController');
@@ -60,12 +60,12 @@ router.delete("/cart/remove/:productId", authToken, cartController.removeCartIte
 router.post("/create-checkout-session", authToken, checkoutController.createCheckoutSession);
 
 // --- Auth Routes ---
-router.get("/me", authToken, frontendAuthController.getMe);
+router.get("/me", authToken, getMe);
 // Member
-router.post("/signup", frontendAuthController.memberSignup);
-router.post("/signin", frontendAuthController.memberSignin);
-router.get("/signout", frontendAuthController.memberSignout);
-router.get("/member/me", authToken, memberPermissionMiddleware, frontendAuthController.getMemberDetails);
+router.post("/signup", validateMemberSignup, memberSignup);
+router.post("/signin", validateMemberSignin, memberSignin);
+router.get("/signout", memberSignout);
+router.get("/member/me", authToken, memberPermissionMiddleware, getMemberDetails);
 
 // Admin
 router.post("/admin/signin", authController.adminSignIn);
